@@ -107,34 +107,36 @@ MonoBehaviour:
   currentHealth: 1250
   manager: {fileID: 0}
   player: {fileID: 0}
-  redZonesBeforeLaser: 1
+  redZonesBeforeLaser: 3
   warningTime: 1.5
-  redZoneRadius: 4
-  redZoneDuration: 4
-  redZoneDamage: 12
+  redZoneRadius: 3
+  redZoneDuration: 3
+  redZoneDamage: 15
   redZoneTick: 0.5
   redZoneHeightOffset: 0.03
-  laserWarningTime: 5
-  laserDuration: 5
+  laserWarningTime: 3
+  laserDuration: 15
   laserLength: 100
-  laserWidth: 10
+  laserWidth: 20
   laserHeight: -4
-  laserDamage: 1
-  laserTick: 0.5
+  laserDamage: 10
+  laserTick: 0.1
   lockLaserToPlayer: 1
-  laserTrackingSpeed: 360
-  orbShootInterval: 2.5
+  laserTrackingSpeed: 20
+  orbShootInterval: 1.25
   orbShootWarning: 0.75
-  orbSpeed: 8
-  orbLifeTime: 6
-  orbSize: 1.5
-  orbDamage: 5
+  orbSpeed: 15
+  orbLifeTime: 5
+  orbSize: 3
+  orbDamage: 30
   orbDamageInterval: 0.5
   orbSpawnHeight: 1.5
   orbHitRadius: 1.5
   orbColor: {r: 1, g: 0, b: 0, a: 1}
   stopCompletelyInPhaseTwo: 1
   turnSpeed: 360
+  preventKnockback: 1
+  freezeRigidbodyInPhaseTwo: 1
   healthBarHeight: 2
   healthBarWidth: 200
   healthBarDistanceLimit: 60

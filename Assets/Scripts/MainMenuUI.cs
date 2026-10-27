@@ -274,14 +274,14 @@ public class MainMenuUI : MonoBehaviour
     private void ShowInfo()
     {
         NewPanel("GAME INFO");
-        AddText(panel.transform, "SKY ISLAND SURVIVAL\n\nExplore the maze on a floating island.\n\nW A S D : Move\nMouse : Look around\nSPACE : Jump\n\nAvoid traps and kill zombies.\nKill the boss and survive!", 24, new Vector2(0, 70), new Vector2(650, 400));
+        AddText(panel.transform, "SKY ISLAND SURVIVAL\n\nExplore the maze on a floating island.\n\nW A S D : Move\nMouse : Look around\nSPACE : Jump\n\nAvoid traps and Kill zombies.\nKill the boss and survive!", 24, new Vector2(0, 70), new Vector2(650, 400));
         AddButton(panel.transform, "BACK", new Vector2(0, -250), ShowMain);
     }
 
     private void ShowCredits()
     {
         NewPanel("CREDITS");
-        AddText(panel.transform, "GAME DEVELOPER\n\nYour Name Here\n\nCreated with Unity 6", 28, new Vector2(0, 70), new Vector2(650, 250));
+        AddText(panel.transform, "GAME DEVELOPER\n\nนายภูริ สีหราช 6806397 \n\nนายอิทธิกร  สุวดิษฐ์ 6804014\n\nCreated with Unity 6", 28, new Vector2(0, 70), new Vector2(650, 250));
         AddButton(panel.transform, "BACK", new Vector2(0, -200), ShowMain);
     }
 

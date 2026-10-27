@@ -50,6 +50,11 @@ public class BossHealth : MonoBehaviour
     [Header("Phase 2 Movement")]
     public bool stopCompletelyInPhaseTwo = true;
     public float turnSpeed = 360f;
+    [Header("Boss Knockback Resistance")]
+    public bool preventKnockback = true;
+    public bool freezeRigidbodyInPhaseTwo = true;
+
+    private Rigidbody bossRigidbody;
 
     [Header("Boss Health Bar")]
     public float healthBarHeight = 2f;
@@ -70,7 +75,22 @@ public class BossHealth : MonoBehaviour
     private void Awake()
     {
         currentHealth = maxHealth;
+
         agent = GetComponent<NavMeshAgent>();
+        bossRigidbody = GetComponent<Rigidbody>();
+
+        if (bossRigidbody != null && preventKnockback)
+        {
+            // ลดผลกระทบจากแรงผลักใน Phase 1
+            bossRigidbody.mass = 10000f;
+            bossRigidbody.linearDamping = 10f;
+            bossRigidbody.angularDamping = 10f;
+
+            // ป้องกันบอสล้มเอียง
+            bossRigidbody.constraints |=
+                RigidbodyConstraints.FreezeRotationX |
+                RigidbodyConstraints.FreezeRotationZ;
+        }
     }
 
     private void Start()
@@ -142,6 +162,7 @@ public class BossHealth : MonoBehaviour
 
         Debug.Log("BOSS ENTERED PHASE 2: STATIONARY LASER ORB");
 
+        // หยุดการโจมตี Phase 1
         if (phaseOneRoutine != null)
         {
             StopCoroutine(phaseOneRoutine);
@@ -150,12 +171,14 @@ public class BossHealth : MonoBehaviour
 
         attacking = false;
 
+        // ลบเลเซอร์เก่า
         if (laserObject != null)
         {
             Destroy(laserObject);
             laserObject = null;
         }
 
+        // หยุด NavMeshAgent เพื่อไม่ให้บอสเดิน
         if (agent != null && agent.enabled)
         {
             if (agent.isOnNavMesh)
@@ -164,8 +187,15 @@ public class BossHealth : MonoBehaviour
                 agent.ResetPath();
             }
 
-            // ปิด NavMeshAgent เพื่อไม่ให้ระบบเดินเดิมขยับบอส
             agent.enabled = false;
+        }
+
+        // ป้องกันบอสถูกผลักใน Phase 2
+        if (bossRigidbody != null && freezeRigidbodyInPhaseTwo)
+        {
+            bossRigidbody.linearVelocity = Vector3.zero;
+            bossRigidbody.angularVelocity = Vector3.zero;
+            bossRigidbody.isKinematic = true;
         }
 
         if (manager != null)
@@ -717,6 +747,8 @@ public class BossHealth : MonoBehaviour
 }
 
 // Component สำหรับบอลเลเซอร์ของบอส
+
+
 public class LaserOrbProjectile : MonoBehaviour
 {
     private Transform target;
@@ -729,7 +761,8 @@ public class LaserOrbProjectile : MonoBehaviour
     private Vector3 direction;
     private float elapsed;
     private float damageTimer;
-    private bool hasHitPlayer;
+
+    private PlayerHealth damagedPlayer;
 
     public void Initialize(
         Transform targetTransform,
@@ -744,13 +777,15 @@ public class LaserOrbProjectile : MonoBehaviour
         lifeTime = lifetime;
         damage = damageAmount;
         damageInterval = Mathf.Max(0.05f, tickInterval);
-        hitRadius = radius;
+        hitRadius = Mathf.Max(0.1f, radius);
 
         if (target != null)
         {
             direction =
                 (target.position - transform.position).normalized;
         }
+
+        Debug.Log("[LaserOrb] Initialized. Damage = " + damage);
     }
 
     private void Update()
@@ -763,52 +798,74 @@ public class LaserOrbProjectile : MonoBehaviour
             return;
         }
 
-        if (target == null)
+        Vector3 previousPosition = transform.position;
+
+        // เคลื่อนบอลไปตามทิศทางที่เล็งไว้ตอนยิง
+        transform.position +=
+            direction * speed * Time.deltaTime;
+
+        Vector3 movement =
+            transform.position - previousPosition;
+
+        // ตรวจทั้งตำแหน่งปัจจุบันและเส้นทางที่บอลเคลื่อนผ่าน
+        float radius = hitRadius + movement.magnitude * 0.5f;
+
+        Collider[] hits = Physics.OverlapSphere(
+            transform.position,
+            radius,
+            ~0,
+            QueryTriggerInteraction.Collide);
+
+        PlayerHealth foundPlayer = null;
+
+        foreach (Collider hit in hits)
         {
-            Destroy(gameObject);
-            return;
-        }
-
-        // บอลเลเซอร์เคลื่อนที่ไปยังทิศทางที่เล็งตอนยิง
-        transform.position += direction * speed * Time.deltaTime;
-
-        // ตรวจสอบระยะห่างจากผู้เล่นเพื่อทำดาเมจต่อเนื่อง
-        PlayerHealth[] players =
-            FindObjectsByType<PlayerHealth>(
-                FindObjectsSortMode.None);
-
-        PlayerHealth hitPlayer = null;
-
-        foreach (PlayerHealth ph in players)
-        {
-            if (ph == null || ph.currentHealth <= 0)
+            if (hit == null)
                 continue;
 
-            float distance = Vector3.Distance(
-                transform.position,
-                ph.transform.position);
+            PlayerHealth health =
+                hit.GetComponentInParent<PlayerHealth>();
 
-            if (distance <= hitRadius)
+            if (health == null)
+                health = hit.GetComponentInChildren<PlayerHealth>();
+
+            if (health != null && health.currentHealth > 0)
             {
-                hitPlayer = ph;
+                foundPlayer = health;
                 break;
             }
         }
 
-        if (hitPlayer != null)
+        if (foundPlayer != null)
         {
-            hasHitPlayer = true;
+            if (damagedPlayer != foundPlayer)
+            {
+                damagedPlayer = foundPlayer;
+                damageTimer = damageInterval;
+            }
+
             damageTimer += Time.deltaTime;
 
             if (damageTimer >= damageInterval)
             {
-                hitPlayer.TakeDamage(damage);
+                Debug.Log(
+                    "[LaserOrb] HIT! Applying damage: " + damage);
+
+                foundPlayer.TakeDamage(damage);
+
                 damageTimer = 0f;
             }
         }
         else
         {
+            damagedPlayer = null;
             damageTimer = 0f;
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, hitRadius);
     }
 }
