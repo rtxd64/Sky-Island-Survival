@@ -13,6 +13,12 @@ public class ShopUI : MonoBehaviour
 
     private PlayerHealth playerHealth;
 
+    [Header("Weapon HUD")]
+    [Tooltip("ลาก GameObject ของ UI สลับปืน/ดาบมาใส่ช่องนี้")]
+    [SerializeField] private GameObject weaponHUD;
+
+    private bool weaponHUDWasActive;
+
     [Header("Shop Item Images")]
     public Sprite speedPotionIcon;
     public Sprite resistancePotionIcon;
@@ -67,6 +73,7 @@ public class ShopUI : MonoBehaviour
 
         Canvas canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 100;
 
         CanvasScaler scaler =
             canvasObject.AddComponent<CanvasScaler>();
@@ -117,7 +124,6 @@ public class ShopUI : MonoBehaviour
             new Vector2(0, 225),
             new Vector2(650, 40));
 
-        // สินค้าพร้อมรูปภาพ
         AddShopButton(
             "Speed Potion | $50 | Speed +50% / 60 sec",
             150,
@@ -197,7 +203,6 @@ public class ShopUI : MonoBehaviour
         label.raycastTarget = false;
     }
 
-    // สร้างสินค้า พร้อมรูปทางซ้ายและข้อความทางขวา
     private void AddShopButton(
         string label,
         float y,
@@ -221,7 +226,6 @@ public class ShopUI : MonoBehaviour
         button.targetGraphic = backgroundImage;
         button.onClick.AddListener(action);
 
-        // รูปไอเทม
         GameObject iconObject = new GameObject("ItemIcon");
         iconObject.transform.SetParent(obj.transform, false);
 
@@ -239,7 +243,6 @@ public class ShopUI : MonoBehaviour
         iconImage.preserveAspect = true;
         iconImage.raycastTarget = false;
 
-        // ชื่อสินค้าและราคา
         GameObject textObject = new GameObject("ItemText");
         textObject.transform.SetParent(obj.transform, false);
 
@@ -327,6 +330,7 @@ public class ShopUI : MonoBehaviour
 
         text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.raycastTarget = false;
 
         return text;
     }
@@ -336,6 +340,7 @@ public class ShopUI : MonoBehaviour
         SetShopVisible(!isOpen);
     }
 
+
     private void SetShopVisible(bool visible)
     {
         isOpen = visible;
@@ -343,11 +348,14 @@ public class ShopUI : MonoBehaviour
         if (shopPanel != null)
             shopPanel.SetActive(visible);
 
+        // ไม่ปิด WeaponController หรือระบบควบคุมอาวุธ
+        if (weaponHUD != null)
+            weaponHUD.SetActive(!visible);
+
         if (visible)
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-
             UpdateMoneyText();
             SetStatus("");
         }
@@ -357,6 +365,7 @@ public class ShopUI : MonoBehaviour
             Cursor.visible = false;
         }
     }
+
 
     private void UpdateMoneyText()
     {
@@ -458,7 +467,7 @@ public class ShopUI : MonoBehaviour
         }
 
         PlayerPotionEffects.Instance.DrinkDamagePotion();
-        SetStatus("Damage Potion activated for 60 seconds!");
+        SetStatus("Damage Spray activated for 60 seconds!");
         return true;
     }
 

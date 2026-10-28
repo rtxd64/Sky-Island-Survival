@@ -6173,7 +6173,7 @@ MonoBehaviour:
   player: {fileID: 1293403098}
   detectionRange: 2.5
   attackDistance: 1.8
-  detectImmediately: 1
+  detectImmediately: 0
   moveSpeed: 0
   acceleration: 20
   rotationSpeed: 360
@@ -7477,7 +7477,7 @@ MonoBehaviour:
   player: {fileID: 1293403098}
   detectionRange: 2.5
   attackDistance: 1.8
-  detectImmediately: 1
+  detectImmediately: 0
   moveSpeed: 0
   acceleration: 20
   rotationSpeed: 360
@@ -8511,7 +8511,7 @@ MonoBehaviour:
   player: {fileID: 1293403098}
   detectionRange: 2.5
   attackDistance: 1.8
-  detectImmediately: 1
+  detectImmediately: 0
   moveSpeed: 0
   acceleration: 20
   rotationSpeed: 360
@@ -11737,7 +11737,7 @@ MonoBehaviour:
   player: {fileID: 1293403098}
   detectionRange: 2.5
   attackDistance: 1.8
-  detectImmediately: 1
+  detectImmediately: 0
   moveSpeed: 0
   acceleration: 20
   rotationSpeed: 360
@@ -14160,6 +14160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba01247179d57bd418bda05989e4b021, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ShopUI
+  weaponHUD: {fileID: 1788235252}
   speedPotionIcon: {fileID: 21300000, guid: 7e89a07be4a9c844eb4087b6bee8a6a4, type: 3}
   resistancePotionIcon: {fileID: 21300000, guid: ea734bcccf2c1c24da1d9329d1b1e02d, type: 3}
   damageSprayIcon: {fileID: 21300000, guid: 414e2c2158305724e8ec63c1525deb74, type: 3}
